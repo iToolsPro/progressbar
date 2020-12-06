@@ -392,14 +392,24 @@ func (p *ProgressBar) Set(num int) error {
 }
 
 // WriteLog will write the log with \n, and bar will show in next line.
-func (p *ProgressBar) WriteLog(str string) {
+func (p *ProgressBar) WriteLog(str string) error {
+	//fmt.Println("write log")
+	p.lock.Lock()
+	defer p.lock.Unlock()
 	if err := p.Clear(); err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println(str)
-	if err := p.RenderBlank(); err != nil {
-		log.Fatal(err)
+	//p.render()
+	w, err := renderProgressBar(p.config, p.state)
+	if err != nil {
+		return err
 	}
+	if w > p.state.maxLineWidth {
+		p.state.maxLineWidth = w
+	}
+	return nil
+	//fmt.Println("\nfinish log")
 }
 
 // Set64 wil set the bar to a current number
@@ -452,7 +462,7 @@ func (p *ProgressBar) Add64(num int64) error {
 	if p.state.currentNum > p.config.max {
 		return errors.New("current number exceeds max")
 	}
-
+	return p.render()
 	// always update if show bytes/second or its/second
 	if updateBar || p.config.showIterationsPerSecond || p.config.showIterationsCount {
 		return p.render()
