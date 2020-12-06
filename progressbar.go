@@ -390,6 +390,13 @@ func (p *ProgressBar) Set(num int) error {
 	return p.Set64(int64(num))
 }
 
+// WriteLog will write the log with \n, and bar will show in next line.
+func (p *ProgressBar) WriteLog(str string) {
+	p.Clear()
+	writeString(p.config, str+"\n")
+	p.RenderBlank()
+}
+
 // Set64 wil set the bar to a current number
 func (p *ProgressBar) Set64(num int64) error {
 	p.lock.Lock()
