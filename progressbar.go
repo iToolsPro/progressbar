@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"math"
 	"os"
 	"regexp"
@@ -392,9 +393,13 @@ func (p *ProgressBar) Set(num int) error {
 
 // WriteLog will write the log with \n, and bar will show in next line.
 func (p *ProgressBar) WriteLog(str string) {
-	p.Clear()
-	writeString(p.config, str+"\n")
-	p.RenderBlank()
+	if err := p.Clear(); err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(str)
+	if err := p.RenderBlank(); err != nil {
+		log.Fatal(err)
+	}
 }
 
 // Set64 wil set the bar to a current number
